@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowUpRight, Menu, X, Code2, Sparkles } from "lucide-react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
 
 const navItems = [
-  { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
-  { label: "Tech Stack", href: "#tech" },
+  { label: "Stack", href: "#tech" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -17,102 +16,117 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile menu on ESC
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [mobileMenuOpen]);
+
   return (
     <header
+      role="banner"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#101113]/85 backdrop-blur-md border-b border-[#2A2C30]/70 py-3 shadow-lg shadow-black/20"
+          ? "bg-[#0D0E10]/90 backdrop-blur-md border-b border-[#1c1e24] py-3 shadow-sm"
           : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        {/* Monogram & Identity */}
+
+        {/* Identity mark */}
         <a
           href="#home"
-          className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#A78BFA]/50 rounded-lg p-1"
+          className="flex items-center gap-2.5 group rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b7cf8]/50"
+          aria-label="Dharmendra Verma — home"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#1B1C1F] border border-[#2A2C30] flex items-center justify-center font-mono text-xs font-bold text-[#F2F2F0] group-hover:border-[#A78BFA]/60 group-hover:text-[#A78BFA] transition-colors shadow-inner">
+          <div className="w-8 h-8 rounded-lg bg-[#131417] border border-[#23252B] flex items-center justify-center font-mono text-xs font-bold text-[#F3F4F6] group-hover:border-[#8b7cf8]/50 group-hover:text-[#8b7cf8] transition-colors">
             DV
           </div>
           <div className="flex flex-col">
-            <span className="font-medium text-sm text-[#F2F2F0] group-hover:text-white transition-colors tracking-tight">
-              dharmendra.dev
+            <span className="font-semibold text-sm text-[#F3F4F6] tracking-tight leading-tight">
+              Dharmendra Verma
             </span>
-            <span className="text-[10px] text-[#96989F] font-mono flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Invictus Alpha
+            <span className="text-[10px] text-[#6b7280] font-mono leading-tight">
+              Full Stack Developer
             </span>
           </div>
         </a>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#161719]/80 border border-[#2A2C30]/80 rounded-full px-3 py-1.5 backdrop-blur-sm">
+        {/* Desktop nav */}
+        <nav
+          aria-label="Primary navigation"
+          className="hidden md:flex items-center gap-0.5 bg-[#111316] border border-[#23252B] rounded-full px-2.5 py-1.5"
+        >
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="text-xs font-medium text-[#96989F] hover:text-[#F2F2F0] hover:bg-[#1B1C1F] px-3 py-1.5 rounded-full transition-all"
+              className="text-xs font-medium text-[#8E929E] hover:text-[#F3F4F6] hover:bg-[#18191D] px-3 py-1.5 rounded-full transition-colors"
             >
               {item.label}
             </a>
           ))}
         </nav>
 
-        {/* Action button */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* CTA */}
+        <div className="hidden md:flex items-center">
           <a
             href="mailto:its.dharmendra.v@gmail.com"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#F2F2F0] bg-[#1B1C1F] hover:bg-[#222429] border border-[#2A2C30] hover:border-[#3E4148] px-3.5 py-1.5 rounded-lg transition-all shadow-sm"
+            id="nav-get-in-touch"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#F3F4F6] bg-[#131417] hover:bg-[#18191D] border border-[#23252B] hover:border-[#374151] px-3.5 py-1.5 rounded-lg transition-colors"
           >
             <span>Get in Touch</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#96989F]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-[#6b7280]" aria-hidden="true" />
           </a>
         </div>
 
-        {/* Mobile menu trigger */}
+        {/* Mobile menu button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg bg-[#1B1C1F] border border-[#2A2C30] text-[#96989F] hover:text-[#F2F2F0] focus:outline-none"
-          aria-label="Toggle navigation menu"
+          className="md:hidden p-2 rounded-lg bg-[#131417] border border-[#23252B] text-[#8E929E] hover:text-[#F3F4F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b7cf8]/50"
+          aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-nav"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
         </button>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[#2A2C30] bg-[#161719] px-4 py-4 mt-2 space-y-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="grid grid-cols-2 gap-2">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-xs font-medium text-[#96989F] hover:text-[#F2F2F0] bg-[#1B1C1F] hover:bg-[#222429] border border-[#2A2C30]/50 p-2.5 rounded-lg transition-all"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-          <div className="pt-2 border-t border-[#2A2C30]/60">
+        <div
+          id="mobile-nav"
+          className="md:hidden border-t border-[#1c1e24] bg-[#0D0E10]/95 backdrop-blur-md px-4 py-4 space-y-1"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
+          {navItems.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-medium text-[#8E929E] hover:text-[#F3F4F6] hover:bg-[#131417] px-3 py-2.5 rounded-lg transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
+          <div className="pt-2 border-t border-[#1c1e24]">
             <a
               href="mailto:its.dharmendra.v@gmail.com"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 text-xs font-medium text-[#F2F2F0] bg-[#1B1C1F] border border-[#2A2C30] p-2.5 rounded-lg text-center"
+              className="flex items-center justify-center gap-2 text-sm font-medium text-[#F3F4F6] bg-[#131417] border border-[#23252B] py-2.5 rounded-lg text-center"
             >
               <span>its.dharmendra.v@gmail.com</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-[#A78BFA]" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#8b7cf8]" aria-hidden="true" />
             </a>
           </div>
         </div>

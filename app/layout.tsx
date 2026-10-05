@@ -17,43 +17,49 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#101113",
+  themeColor: "#0D0E10",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
 
 export const metadata: Metadata = {
-  title: "Dharmendra Verma — Full-Stack & Shopify Apps Developer",
-  description: "PERN Stack Developer & Shopify Apps Developer specializing in full-stack web applications, Shopify app development, backend APIs, and storefront experiences.",
+  title: "Dharmendra Verma — Full Stack Developer",
+  description:
+    "Full Stack Developer specializing in Node.js, React, Next.js, PostgreSQL, Redis, Socket.IO, and Shopify app development. Based in Jaipur, India.",
   keywords: [
     "Dharmendra Verma",
-    "PERN Stack Developer",
-    "Shopify Apps Developer",
+    "Full Stack Developer",
+    "Node.js Developer",
     "React Developer",
     "Next.js Developer",
-    "Node.js",
-    "Express",
+    "Shopify Developer",
+    "TypeScript",
     "PostgreSQL",
     "Prisma",
-    "Shopify API",
+    "Redis",
+    "Socket.IO",
+    "Shopify APIs",
+    "Liquid",
+    "Jaipur Developer",
     "CleverCat",
     "Invictus Alpha",
-    "Jaipur Developer",
   ],
   authors: [{ name: "Dharmendra Verma", url: "https://github.com/dharmendravm" }],
   metadataBase: new URL("https://dharmendra.dev"),
   openGraph: {
-    title: "Dharmendra Verma — PERN & Shopify Apps Developer",
-    description: "Building useful products for the web. Working across PERN stack applications and Shopify app development.",
+    title: "Dharmendra Verma — Full Stack Developer",
+    description:
+      "Full Stack Developer building real-time backends, REST APIs, React frontends, and Shopify storefront experiences.",
     type: "website",
     url: "https://dharmendra.dev",
-    siteName: "Dharmendra Verma Portfolio",
+    siteName: "Dharmendra Verma",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dharmendra Verma — Full-Stack & Shopify Apps Developer",
-    description: "Building useful products for the web. PERN stack & Shopify app development.",
+    title: "Dharmendra Verma — Full Stack Developer",
+    description:
+      "Full Stack Developer — Node.js, React, Next.js, PostgreSQL, Redis, Shopify APIs.",
   },
   robots: {
     index: true,
@@ -79,10 +85,9 @@ export default function RootLayout({
       lang="en"
       className={`${jakartaSans.variable} ${jetbrainsMono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-bg-main text-[#f2f2f0] font-sans">
+      <body className="min-h-full flex flex-col bg-[#0D0E10] text-[#f2f2f0] font-sans">
         {children}
       </body>
     </html>
   );
 }
-

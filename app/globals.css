@@ -2,34 +2,43 @@
 
 @theme {
   --color-bg-main: #0D0E10;
-  --color-bg-secondary: #131417;
-  --color-bg-card: #18191D;
-  --color-bg-card-hover: #1F2026;
+  --color-bg-secondary: #111316;
+  --color-bg-card: #131417;
+  --color-bg-card-hover: #18191D;
   --color-text-primary: #F3F4F6;
   --color-text-secondary: #8E929E;
-  --color-border-subtle: #23252B;
-  --color-border-hover: #373A44;
-  --color-accent: #A78BFA;
-  --color-accent-muted: rgba(167, 139, 250, 0.15);
-  
+  --color-border-subtle: #1c1e24;
+  --color-border-mid: #23252B;
+  --color-border-hover: #374151;
+  --color-accent: #8b7cf8;
+  --color-accent-muted: rgba(139, 124, 248, 0.10);
+
   --font-sans: var(--font-jakarta), -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains), monospace;
 }
 
 :root {
   --bg-main: #0D0E10;
-  --bg-secondary: #131417;
-  --bg-card: #18191D;
+  --bg-secondary: #111316;
+  --bg-card: #131417;
   --text-primary: #F3F4F6;
   --text-secondary: #8E929E;
-  --border-subtle: #23252B;
-  --accent: #A78BFA;
+  --border-subtle: #1c1e24;
+  --accent: #8b7cf8;
   color-scheme: dark;
+}
+
+/* ─── Custom cursor ─── */
+body.custom-cursor-active,
+body.custom-cursor-active a,
+body.custom-cursor-active button {
+  cursor: none !important;
 }
 
 * {
   box-sizing: border-box;
 }
+
 
 html {
   scroll-behavior: smooth;
@@ -46,44 +55,79 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Handcrafted grid and dot background patterns */
-.bg-grid-pattern {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+/* ─── Scroll-reveal utility ─── */
+/* Used by sections to fade+slide in as they enter viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.bg-dot-pattern {
-  background-image: radial-gradient(rgba(167, 139, 250, 0.15) 1px, transparent 1px);
-  background-size: 20px 20px;
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.bg-radial-glow {
-  background: radial-gradient(circle 600px at 50% -50px, rgba(167, 139, 250, 0.08), transparent 70%);
+/* Stagger children inside a reveal container */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Custom subtle scrollbar */
+.reveal-stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0ms; }
+.reveal-stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 60ms; }
+.reveal-stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 120ms; }
+.reveal-stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 180ms; }
+.reveal-stagger.visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 240ms; }
+.reveal-stagger.visible > *:nth-child(n+6) { opacity: 1; transform: none; transition-delay: 300ms; }
+
+/* Reduced-motion: skip all reveal animations */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ─── Subtle grid background ─── */
+.bg-grid-subtle {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #0D0E10;
 }
 ::-webkit-scrollbar-thumb {
   background: #23252B;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #373A44;
+  background: #374151;
 }
 
-/* Code highlight syntax simulation */
-.code-keyword { color: #CF9FFF; font-weight: 600; }
-.code-function { color: #7DD3FC; }
-.code-string { color: #86EFAC; }
-.code-comment { color: #6B7280; font-style: italic; }
-.code-type { color: #FDE047; }
-.code-prop { color: #F472B6; }
+/* ─── Code syntax highlight helpers ─── */
+.code-keyword { color: #cf9fff; font-weight: 600; }
+.code-function { color: #7dd3fc; }
+.code-string { color: #86efac; }
+.code-comment { color: #6b7280; font-style: italic; }
+.code-type { color: #fde047; }
+.code-prop { color: #f472b6; }
 
-
+/* ─── Focus ring ─── */
+:focus-visible {
+  outline: 2px solid #8b7cf8;
+  outline-offset: 3px;
+  border-radius: 4px;
+}

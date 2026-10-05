@@ -1,25 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 export default function GlobalCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [webGLSupported, setWebGLSupported] = useState(true);
+  const webGLSupportedRef = useRef(true);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Test WebGL availability
     try {
       const testCanvas = document.createElement("canvas");
       const gl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
-      if (!gl) {
-        setWebGLSupported(false);
-        return;
-      }
-    } catch (e) {
-      setWebGLSupported(false);
+      if (!gl) { webGLSupportedRef.current = false; return; }
+    } catch {
+      webGLSupportedRef.current = false;
       return;
     }
 
@@ -27,218 +23,204 @@ export default function GlobalCanvas() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // Scene
     const scene = new THREE.Scene();
-
-    // Camera
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    camera.position.z = 12;
+    camera.position.z = 14;
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
+      antialias: false,
+      powerPreference: "low-power",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2));
     container.appendChild(renderer.domElement);
 
-    // Main 3D Group
-    const globalGroup = new THREE.Group();
-    scene.add(globalGroup);
+    // --- Sparse Network Graph ---
+    // Node positions representing system components
+    const isMobile = width < 768;
+    const nodeCount = isMobile ? 18 : 32;
 
-    // DENSE MULTI-LAYERED DRIFTING STARFIELD SYSTEM
-    const starCount = 950;
-    const starsGeo = new THREE.BufferGeometry();
-    const originalPositions = new Float32Array(starCount * 3);
-    const currentPositions = new Float32Array(starCount * 3);
-    const driftVelocities = new Float32Array(starCount * 3);
-    const colors = new Float32Array(starCount * 3);
-
-    const colorWhite = new THREE.Color(0xffffff);
-    const colorMutedViolet = new THREE.Color(0xa78bfa);
-    const colorDimBlue = new THREE.Color(0x60a5fa);
-
-    for (let i = 0; i < starCount; i++) {
-      const i3 = i * 3;
-      const x = (Math.random() - 0.5) * 32;
-      const y = (Math.random() - 0.5) * 45;
-      const z = (Math.random() - 0.5) * 22;
-
-      originalPositions[i3] = x;
-      originalPositions[i3 + 1] = y;
-      originalPositions[i3 + 2] = z;
-
-      currentPositions[i3] = x;
-      currentPositions[i3 + 1] = y;
-      currentPositions[i3 + 2] = z;
-
-      // Unique subtle drift speeds in different directions per particle
-      driftVelocities[i3] = (Math.random() - 0.5) * 0.002;
-      driftVelocities[i3 + 1] = (Math.random() - 0.5) * 0.002;
-      driftVelocities[i3 + 2] = (Math.random() - 0.5) * 0.001;
-
-      // Color distribution: 50% white, 35% muted violet, 15% dim blue
-      const rand = Math.random();
-      let pickedColor = colorWhite;
-      if (rand > 0.65) {
-        pickedColor = colorDimBlue;
-      } else if (rand > 0.3) {
-        pickedColor = colorMutedViolet;
-      }
-
-      colors[i3] = pickedColor.r;
-      colors[i3 + 1] = pickedColor.g;
-      colors[i3 + 2] = pickedColor.b;
+    const nodePositions: THREE.Vector3[] = [];
+    for (let i = 0; i < nodeCount; i++) {
+      nodePositions.push(
+        new THREE.Vector3(
+          (Math.random() - 0.5) * (isMobile ? 20 : 30),
+          (Math.random() - 0.5) * (isMobile ? 28 : 40),
+          (Math.random() - 0.5) * 8
+        )
+      );
     }
 
-    starsGeo.setAttribute("position", new THREE.BufferAttribute(currentPositions, 3));
-    starsGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    // Node sizes — a few "primary" nodes, rest "secondary"
+    const primaryIndices = new Set<number>();
+    const primaryCount = Math.floor(nodeCount * 0.25);
+    while (primaryIndices.size < primaryCount) {
+      primaryIndices.add(Math.floor(Math.random() * nodeCount));
+    }
 
-    const starsMat = new THREE.PointsMaterial({
-      size: 0.038,
+    // Render nodes as points with varying sizes
+    const nodeGeo = new THREE.BufferGeometry();
+    const nodePosArray = new Float32Array(nodeCount * 3);
+    const nodeSizeArray = new Float32Array(nodeCount);
+    const nodeColorArray = new Float32Array(nodeCount * 3);
+
+    const colorPrimary = new THREE.Color(0x8b7cf8); // softer violet
+    const colorSecondary = new THREE.Color(0x374151); // dark grey
+    const colorTertiary = new THREE.Color(0x4a5568);
+
+    nodePositions.forEach((pos, i) => {
+      nodePosArray[i * 3] = pos.x;
+      nodePosArray[i * 3 + 1] = pos.y;
+      nodePosArray[i * 3 + 2] = pos.z;
+
+      if (primaryIndices.has(i)) {
+        nodeSizeArray[i] = 0.06;
+        colorPrimary.toArray(nodeColorArray, i * 3);
+      } else if (Math.random() > 0.6) {
+        nodeSizeArray[i] = 0.035;
+        colorTertiary.toArray(nodeColorArray, i * 3);
+      } else {
+        nodeSizeArray[i] = 0.025;
+        colorSecondary.toArray(nodeColorArray, i * 3);
+      }
+    });
+
+    nodeGeo.setAttribute("position", new THREE.BufferAttribute(nodePosArray, 3));
+    nodeGeo.setAttribute("color", new THREE.BufferAttribute(nodeColorArray, 3));
+
+    const nodeMat = new THREE.PointsMaterial({
+      size: 0.05,
       vertexColors: true,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.55,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
 
-    const starSystem = new THREE.Points(starsGeo, starsMat);
-    globalGroup.add(starSystem);
+    const nodeSystem = new THREE.Points(nodeGeo, nodeMat);
+    scene.add(nodeSystem);
 
-    // Subtle Ambient Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambientLight);
+    // --- Edges: connect nearby nodes ---
+    const edgePositions: number[] = [];
+    const connectionThreshold = isMobile ? 8 : 10;
+    const maxEdgesPerNode = 3;
+    const edgeCounts = new Array(nodeCount).fill(0);
 
-    const lightViolet = new THREE.PointLight(0xa78bfa, 1.8, 30);
-    lightViolet.position.set(6, 6, 4);
-    scene.add(lightViolet);
+    for (let i = 0; i < nodeCount; i++) {
+      for (let j = i + 1; j < nodeCount; j++) {
+        if (edgeCounts[i] >= maxEdgesPerNode || edgeCounts[j] >= maxEdgesPerNode) continue;
+        const dist = nodePositions[i].distanceTo(nodePositions[j]);
+        if (dist < connectionThreshold) {
+          edgePositions.push(
+            nodePositions[i].x, nodePositions[i].y, nodePositions[i].z,
+            nodePositions[j].x, nodePositions[j].y, nodePositions[j].z
+          );
+          edgeCounts[i]++;
+          edgeCounts[j]++;
+        }
+      }
+    }
 
-    const lightBlue = new THREE.PointLight(0x60a5fa, 1.5, 30);
-    lightBlue.position.set(-6, -6, 2);
-    scene.add(lightBlue);
+    const edgeGeo = new THREE.BufferGeometry();
+    edgeGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(edgePositions), 3));
 
-    // Pointer 3D Interaction Tracking
-    const mouseNDC = new THREE.Vector2(-999, -999);
-    const mouseWorld = new THREE.Vector3(0, 0, 0);
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: 0x2d3748,
+      transparent: true,
+      opacity: 0.25,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    const edgeSystem = new THREE.LineSegments(edgeGeo, edgeMat);
+    scene.add(edgeSystem);
+
+    // --- Interaction ---
+    const mouse = new THREE.Vector2(0, 0);
     let scrollY = 0;
     let targetScrollY = 0;
+    let mouseLerpX = 0;
+    let mouseLerpY = 0;
 
-    const handleScroll = () => {
-      targetScrollY = window.scrollY;
-    };
-
+    const handleScroll = () => { targetScrollY = window.scrollY; };
     const handleMouseMove = (e: MouseEvent) => {
-      mouseNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouseNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      // Project mouse coordinates to 3D world space plane
-      mouseWorld.set(mouseNDC.x * 12, mouseNDC.y * 8, 0);
+      mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     const handleResize = () => {
-      if (!containerRef.current) return;
       width = window.innerWidth;
       height = window.innerHeight;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
-
     window.addEventListener("resize", handleResize);
 
-    // Animation Loop with Pointer Displacement & Drifting Starfield
     let animationFrameId: number;
+    let lastTime = 0;
 
-    const animate = () => {
+    const animate = (currentTime: number) => {
       animationFrameId = requestAnimationFrame(animate);
 
-      const time = performance.now() * 0.0006;
+      // Throttle to ~30fps for performance
+      if (currentTime - lastTime < 33) return;
+      lastTime = currentTime;
+
+      const t = currentTime * 0.0003;
 
       // Smooth scroll lerp
-      scrollY += (targetScrollY - scrollY) * 0.05;
-      const scrollProgress = scrollY / (document.documentElement.scrollHeight || 1);
+      scrollY += (targetScrollY - scrollY) * 0.04;
+      const scrollProgress = scrollY / Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
 
-      // Starfield Drift & Magnetic Cursor Reaction
-      const posAttr = starsGeo.attributes.position as THREE.BufferAttribute;
-      const posArray = posAttr.array as Float32Array;
+      // Smooth mouse lerp
+      mouseLerpX += (mouse.x - mouseLerpX) * 0.04;
+      mouseLerpY += (mouse.y - mouseLerpY) * 0.04;
 
-      const cursorRadius = 3.2;
+      // Very subtle camera drift with mouse parallax
+      camera.position.x = mouseLerpX * 0.6;
+      camera.position.y = mouseLerpY * 0.4 - scrollProgress * 3;
 
-      for (let i = 0; i < starCount; i++) {
-        const i3 = i * 3;
+      // Very slow network drift
+      nodeSystem.rotation.y = t * 0.04;
+      edgeSystem.rotation.y = t * 0.04;
 
-        // Natural continuous organic drift
-        originalPositions[i3] += driftVelocities[i3];
-        originalPositions[i3 + 1] += driftVelocities[i3 + 1];
-
-        // Wrap around boundary bounds for seamless infinite background particle field
-        if (originalPositions[i3] > 16) originalPositions[i3] = -16;
-        if (originalPositions[i3] < -16) originalPositions[i3] = 16;
-        if (originalPositions[i3 + 1] > 22) originalPositions[i3 + 1] = -22;
-        if (originalPositions[i3 + 1] < -22) originalPositions[i3 + 1] = 22;
-
-        const origX = originalPositions[i3];
-        const origY = originalPositions[i3 + 1] - scrollProgress * 5;
-
-        // Calculate distance from cursor
-        const dx = origX - mouseWorld.x;
-        const dy = origY - mouseWorld.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < cursorRadius && dist > 0.01) {
-          const force = (1 - dist / cursorRadius) * 0.6;
-          // Soft magnetic push away from cursor
-          posArray[i3] = THREE.MathUtils.lerp(posArray[i3], origX + (dx / dist) * force * 1.2, 0.08);
-          posArray[i3 + 1] = THREE.MathUtils.lerp(posArray[i3 + 1], origY + (dy / dist) * force * 1.2, 0.08);
-        } else {
-          // Smooth return to drifting baseline with gentle wave offset
-          const waveX = Math.sin(time + i * 0.1) * 0.12;
-          const waveY = Math.cos(time + i * 0.1) * 0.12;
-          posArray[i3] = THREE.MathUtils.lerp(posArray[i3], origX + waveX, 0.04);
-          posArray[i3 + 1] = THREE.MathUtils.lerp(posArray[i3 + 1], origY + waveY, 0.04);
-        }
-      }
-
-      posAttr.needsUpdate = true;
-
-      // Subtle light drift following scroll
-      lightViolet.position.y = 6 - scrollProgress * 15;
-      lightBlue.position.y = -6 - scrollProgress * 15;
+      // Pulse the primary nodes opacity slightly
+      nodeMat.opacity = 0.45 + Math.sin(t * 2.5) * 0.06;
 
       renderer.render(scene, camera);
     };
 
-    animate();
+    animationFrameId = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
-
-      starsGeo.dispose();
-      starsMat.dispose();
+      nodeGeo.dispose();
+      nodeMat.dispose();
+      edgeGeo.dispose();
+      edgeMat.dispose();
       renderer.dispose();
-
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
   }, []);
 
-  if (!webGLSupported) return null;
+  if (!webGLSupportedRef.current) return null;
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-75"
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.6 }}
+      aria-hidden="true"
     />
   );
 }
-

@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CustomCursor() {
   const [position, setPosition] = useState({ x: -100, y: -100 });
   const [trailingPos, setTrailingPos] = useState({ x: -100, y: -100 });
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const isVisibleRef = useRef(false);
+  const [renderTick, setRenderTick] = useState(0);
 
   useEffect(() => {
     // Check touch screen / coarse pointer
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
-    setIsVisible(true);
+    isVisibleRef.current = true;
+    setRenderTick((t) => t + 1); // trigger re-render after mount
     document.body.classList.add("custom-cursor-active");
 
     let mouseX = -100;
@@ -45,8 +47,8 @@ export default function CustomCursor() {
 
     const handleMouseDown = () => setIsClicked(true);
     const handleMouseUp = () => setIsClicked(false);
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
+    const handleMouseLeave = () => { isVisibleRef.current = false; setRenderTick((t) => t + 1); };
+    const handleMouseEnter = () => { isVisibleRef.current = true; setRenderTick((t) => t + 1); };
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mousedown", handleMouseDown);
@@ -77,37 +79,30 @@ export default function CustomCursor() {
     };
   }, []);
 
-  if (!isVisible) return null;
+  if (!isVisibleRef.current) return null;
 
   return (
     <>
-      {/* Global CSS to hide default cursor when custom cursor active */}
-      <style jsx global>{`
-        body.custom-cursor-active,
-        body.custom-cursor-active a,
-        body.custom-cursor-active button {
-          cursor: none !important;
-        }
-      `}</style>
-
-      {/* Inner Dot */}
+      {/* Inner dot cursor */}
       <div
+        aria-hidden="true"
         className={`fixed top-0 left-0 pointer-events-none z-[9999] rounded-full transition-transform duration-100 ease-out ${
           isHovered
-            ? "w-4 h-4 bg-[#38BDF8] shadow-[0_0_12px_#38BDF8]"
-            : "w-2.5 h-2.5 bg-[#A78BFA] shadow-[0_0_8px_#A78BFA]"
+            ? "w-4 h-4 bg-[#60a5fa] shadow-[0_0_10px_#60a5fa]"
+            : "w-2.5 h-2.5 bg-[#8b7cf8] shadow-[0_0_7px_#8b7cf8]"
         } ${isClicked ? "scale-75" : "scale-100"}`}
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0) translate(-50%, -50%)`,
         }}
       />
 
-      {/* Trailing Outer Ring Aura */}
+      {/* Trailing outer ring */}
       <div
+        aria-hidden="true"
         className={`fixed top-0 left-0 pointer-events-none z-[9998] rounded-full border transition-all duration-300 ease-out ${
           isHovered
-            ? "w-12 h-12 border-[#38BDF8] bg-[#38BDF8]/10 shadow-[0_0_20px_rgba(56,189,248,0.3)] scale-110"
-            : "w-8 h-8 border-[#A78BFA]/50 bg-[#A78BFA]/5 shadow-[0_0_15px_rgba(167,139,250,0.2)] scale-100"
+            ? "w-10 h-10 border-[#60a5fa]/60 bg-[#60a5fa]/5"
+            : "w-8 h-8 border-[#8b7cf8]/40 bg-[#8b7cf8]/3"
         } ${isClicked ? "scale-125 opacity-40" : "opacity-100"}`}
         style={{
           transform: `translate3d(${trailingPos.x}px, ${trailingPos.y}px, 0) translate(-50%, -50%)`,

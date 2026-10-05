@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowUp, Mail } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/Icons";
+import { Mail } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,59 +12,62 @@ export default function Footer() {
   };
 
   return (
-    <footer className="py-10 bg-[#101113] border-t border-[#2A2C30] text-xs text-[#96989F]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-        
-        {/* Left: Identity */}
-        <div className="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
-          <div className="w-7 h-7 rounded-md bg-[#1B1C1F] border border-[#2A2C30] flex items-center justify-center font-mono text-xs font-bold text-[#F2F2F0]">
+    <footer
+      role="contentinfo"
+      className="py-8 bg-[#0D0E10] border-t border-[#1c1e24]"
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-5 text-xs text-[#6b7280] font-mono">
+
+        {/* Identity */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded bg-[#131417] border border-[#23252B] flex items-center justify-center text-[10px] font-bold text-[#F3F4F6]">
             DV
           </div>
           <div>
-            <p className="font-semibold text-[#F2F2F0]">Dharmendra Verma</p>
-            <p className="text-[11px] font-mono text-[#96989F]">Full-Stack Developer · Shopify Apps</p>
+            <p className="text-[#9ca3af] font-semibold text-[11px]">Dharmendra Verma</p>
+            <p className="text-[10px] text-[#4a5568]">Full Stack Developer</p>
           </div>
         </div>
 
-        {/* Center: Social Links */}
-        <div className="flex items-center gap-4">
+        {/* Social */}
+        <div className="flex items-center gap-3">
           <a
             href="https://github.com/dharmendravm"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#F2F2F0] transition-colors p-1.5 rounded hover:bg-[#1B1C1F]"
-            aria-label="GitHub Profile"
+            aria-label="GitHub profile"
+            className="p-1.5 rounded hover:bg-[#131417] hover:text-[#F3F4F6] transition-colors"
           >
-            <GithubIcon className="w-4 h-4" />
+            <GithubIcon className="w-3.5 h-3.5" />
           </a>
           <a
             href="https://linkedin.com/in/dharmendravm"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#F2F2F0] transition-colors p-1.5 rounded hover:bg-[#1B1C1F]"
-            aria-label="LinkedIn Profile"
+            aria-label="LinkedIn profile"
+            className="p-1.5 rounded hover:bg-[#131417] hover:text-[#F3F4F6] transition-colors"
           >
-            <LinkedinIcon className="w-4 h-4" />
+            <LinkedinIcon className="w-3.5 h-3.5" />
           </a>
           <a
             href="mailto:its.dharmendra.v@gmail.com"
-            className="hover:text-[#F2F2F0] transition-colors p-1.5 rounded hover:bg-[#1B1C1F]"
-            aria-label="Send Email"
+            aria-label="Send email"
+            className="p-1.5 rounded hover:bg-[#131417] hover:text-[#F3F4F6] transition-colors"
           >
-            <Mail className="w-4 h-4" />
+            <Mail className="w-3.5 h-3.5" />
           </a>
         </div>
 
-        {/* Right: Copyright & Back-to-Top */}
-        <div className="flex items-center gap-4 text-[11px] font-mono">
+        {/* Copyright + back to top */}
+        <div className="flex items-center gap-4 text-[10px]">
           <span>© {currentYear} Dharmendra Verma</span>
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-1 hover:text-[#F2F2F0] transition-colors px-2 py-1 rounded bg-[#161719] border border-[#2A2C30] hover:border-[#3E4148]"
-            title="Back to top"
+            aria-label="Scroll back to top"
+            className="flex items-center gap-1 hover:text-[#F3F4F6] transition-colors px-2 py-1 rounded border border-[#23252B] hover:border-[#374151]"
           >
             <span>Top</span>
-            <ArrowUp className="w-3 h-3" />
+            <ArrowUp className="w-3 h-3" aria-hidden="true" />
           </button>
         </div>
 
@@ -71,4 +75,3 @@ export default function Footer() {
     </footer>
   );
 }
-
